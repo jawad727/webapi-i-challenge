@@ -9,24 +9,89 @@ server.use(express.json())
 
 
 
-server.get('/', (req, res) => {
-    res.send("it works")
-})
-
-
-
 server.post('/api/users', (req, res) => {
 
     const userInfo = req.body;
-
-    db.users
-    .add(userInfo)
+    
+    db
+    .insert(userInfo)
     .then(user => {
         res.status(201).json(user);
     })
     .catch(error => {
         res.status(500).json({ message: 'error creating users' })
     })
+    
+})
+
+
+
+server.get('/api/users', (req, res) => {
+    db
+    .find()
+    .then(users => {
+        res.status(200).json(users)
+    })
+    .catch(error => {
+        res.status(500).json({ message: 'Error getting users'});
+    });
+});
+
+
+
+
+server.get('/api/users/:id', (req, res) => {
+
+    const id = req.params.id
+
+    db
+    .findById(id)
+
+    .then(users => {
+        res.status(200).json(users)
+    })
+    .catch(error => {
+        res.status(500).json({ message: 'Error getting users by id'});
+    });
+});
+
+
+
+server.delete('/api/users/:id', (req, res) => {
+
+    const id = req.params.id
+
+    db 
+    .remove(id)
+
+    .then(users => {
+        res.status(204).end();
+    })
+    .catch(error => {
+        res.status(500).json({ message: 'Error deleting users by id'});
+    });
+})
+
+
+
+server.put('/api/users/:id', (req, res) => {
+
+    const id = req.params.id
+    const changes = req.body
+
+    db 
+    .update(id, changes)
+
+    .then(updated => {
+        if (updated) {
+            res.status(200).json(updated);
+        } else {
+            res.status(404).json({ message: "user not found" })
+        }
+    })
+    .catch(error => {
+        res.status(500).json({ message: 'Error updating users by id'});
+    });
 })
 
 
